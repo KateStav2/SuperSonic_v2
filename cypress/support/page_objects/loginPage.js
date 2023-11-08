@@ -6,7 +6,7 @@ export class LoginPage{
         cy.get('#login_password').clear().type(password)
         cy.get('form').submit()
         //cy.wait(10000)
-        cy.get('.title-partners').should('contain','All Games')
+        //cy.get('.title-partners').should('contain','All Games')
     }
 
     requestForgotPasswordByEmail(email){

@@ -28,6 +28,8 @@ Cypress.Commands.add('openHomePage', () => {
     cy.visit('/')
 })
 
+import 'cypress-wait-until';
+
 Cypress.Commands.add('openNewTab', { prevSubject: 'element' }, (link) => {
     cy.get(link).invoke('attr', 'target', '_self').click({force: true});
   });
