@@ -11,7 +11,7 @@ export const compareTypedTextToFilteredRows = function(typedText, textToCompare)
     cy.wait(2000)
     
     cy.get('tbody .ant-table-row').each(($row) => {
-      cy.wrap($row).find('.title-cell').invoke('text').then((text) => {
+      cy.wrap($row).find('[aria-label="game-name-cell"]').invoke('text').then((text) => {
         const textInRow = text.toLowerCase()
         //const textInSearch = typedText.toLowerCase()
         //expect(textInRow).to.include(textInSearch)
