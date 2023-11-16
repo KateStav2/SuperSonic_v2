@@ -145,7 +145,7 @@ class MainMenuNavigator {
       openMainMenu()
       cy.get('[aria-label="/help-center"]').click()
   }
-
+  
 }
 
 const showAndHideGameOptimizationMenuSublist = () => {
@@ -218,8 +218,6 @@ const goThroughLanguageSwitcherAndCheckTitlesOnEachPage = () => {
   cy.get('[aria-label="language-switcher"]').click()
   cy.get('[aria-label="language-switcher-menu"]').contains('English').click()
 }
-
-
 
 export { 
   submitLoginFormWithEmailAndPassword,

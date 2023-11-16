@@ -5,12 +5,17 @@ import {
 } from "../actions/generalActions.js"
 
 import {
-    openTypeEraseCloseSearchInputArea,
+    searchFunctionalityValidation,
     compareTypedTextToFilteredRows,
     getLastThreeSymbolsFromRandomTitleAndCompareToFilteredRows,
     clearSearchInputArea,
     checkTabsTitlesOfAllGamesTable,
-    checkTabsTitlesOfNewGamesTable
+    checkTabsTitlesOfNewGamesTable,
+    checkGamesTableThatEachTabOpensByClick,
+    openSearchInputArea,
+    typeTextToSearchInputArea,
+    verifyNumberOfRowsEqualsToNumberInToolbarAndTab,
+    actionsMenuValidation
 } from "../actions/actionsAllGamesUI.js"
 
 describe(' search and all games UI', {"retries": 1}, () => {
@@ -28,7 +33,7 @@ describe(' search and all games UI', {"retries": 1}, () => {
     })
 
     it('search input area: open, type text, erase and close', () => {
-        openTypeEraseCloseSearchInputArea()
+        searchFunctionalityValidation()
     })
 
     it('search by characters', () => {   
@@ -47,7 +52,7 @@ describe(' search and all games UI', {"retries": 1}, () => {
         compareTypedTextToFilteredRows('mon','mo')
     })
 
-    it('search by three characters', () => {
+    it('search by three symbols from game title', () => {
         getLastThreeSymbolsFromRandomTitleAndCompareToFilteredRows()
     
         clearSearchInputArea()
@@ -60,37 +65,20 @@ describe(' search and all games UI', {"retries": 1}, () => {
         checkTabsTitlesOfNewGamesTable()
     })
     
-    it.only('check by attr if tab is chosen', () => {
-        cy.get('.gamesTable').should('be.visible')
-        // click on each tab
-        for (let i = 1; i < 7; i++) {
-            cy.get('.ant-tabs-nav-list')
-                .find('div[data-node-key]')
-                .eq(i)
-                .click()
-                // check attributes of each tab
-                for (let j = 1; j < 7; j++) {
-                    cy.get('.ant-tabs-nav-list')
-                        .find('div[data-node-key]')
-                        .eq(j)
-                        .invoke('attr', 'class')
-                        .then((classVal) => {
-                            if (j === i) {
-                            expect(classVal).to.include('ant-tabs-tab-active')
-                            } else {
-                            expect(classVal).not.to.include('ant-tabs-tab-active')
-                            }
-                        })
-                }
-        }
+    it('check by attr if tab is chosen after click', () => {
+        checkGamesTableThatEachTabOpensByClick()
     })
 
-    // it('5', () => {
-        
-    // })
+    it('check that number on tab equals to number in toolbar and equals to rows number', () => {   
+        openSearchInputArea()
+        typeTextToSearchInputArea('mm') // 4
+        //typeTextToSearchInputArea('zx') // 2
+        cy.get('.gamesTable').should('be.visible')
+        cy.wait(3000)
+        verifyNumberOfRowsEqualsToNumberInToolbarAndTab()
+    })
 
-    // it('6', () => {
-        
-    // })
-
+    it.only('check actions menu', () => {
+        actionsMenuValidation()
+    })
 })
