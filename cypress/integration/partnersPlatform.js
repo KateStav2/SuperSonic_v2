@@ -1,17 +1,13 @@
 /// <reference types="cypress" />
 
 import {
-    submitLoginFormWithEmailAndPassword,
-    requestForgotPasswordByEmail,
-    openMainMenu,
-    openGameOptimizationMenu,
-    openPublishedGamesMenu,
-    MainMenuNavigator,
-    showAndHideGameOptimizationMenuSublist,
-    showAndHidePublishedGamesMenuSublist,
-    notificationsOpenHaveTwoTabsClose,
-    userDropdownCheckNameEmailAndLogout,
-    goThroughLanguageSwitcherAndCheckTitlesOnEachPage
+    loginToPlatform,
+    passwordRecoveryValidation,
+    mainMenuViewValidation,
+    mainMenuNavigationValidation,
+    notificationsWindowCheck,
+    userMenuCheck,
+    languageSwitcherCheck
  } from "../../cypress/actions/generalActions.js"
 
 describe('partners Platform', {"retries": 1}, () => {
@@ -26,48 +22,24 @@ describe('partners Platform', {"retries": 1}, () => {
         cy.wait(5000)
     })
 
-    it('login with empty email, invalid email and request for change password', () => {
-        requestForgotPasswordByEmail()
+    it('password recovery', () => {
+        passwordRecoveryValidation()
     })
 
-    it('login with correct email', () => {
-        submitLoginFormWithEmailAndPassword()
-    })
-
-    it('open main menu, game optimization menu and published games menu', () => {
-        
-        submitLoginFormWithEmailAndPassword()
-        openMainMenu()
-        openGameOptimizationMenu()
-        openPublishedGamesMenu()
+    it('correct login', () => {
+        loginToPlatform()
     })
     
-    it('go through main menu and verify all pages', () => {
-        submitLoginFormWithEmailAndPassword()
-        const mainMenuNavigateTo = new MainMenuNavigator()
-        mainMenuNavigateTo.visitAllGamesPage()
-        mainMenuNavigateTo.visitNewGamePage()
-        mainMenuNavigateTo.visitPrototypesReportsPage()
-        mainMenuNavigateTo.visitABTestsPage()
-        mainMenuNavigateTo.visitLevelAnalyticsPage()
-        mainMenuNavigateTo.visitCrashCenterPage()
-        mainMenuNavigateTo.visitAnalyticsPage()
-        mainMenuNavigateTo.visitTopCreativesPage()
-        mainMenuNavigateTo.visitKnowledgeHubPage()
-        mainMenuNavigateTo.visitHelpCenterPage()
+    it('main menu validation', () => {
+        loginToPlatform()
+        mainMenuViewValidation()
+        mainMenuNavigationValidation()
     })
 
-    it('sublists open/close by click on arrow', () => {
-        submitLoginFormWithEmailAndPassword()
-        showAndHideGameOptimizationMenuSublist()
-        showAndHidePublishedGamesMenuSublist()
+    it('account menu validation', () => {
+        loginToPlatform()
+        notificationsWindowCheck()
+        userMenuCheck()
+        languageSwitcherCheck()
     })
-
-    it('account menu', () => {
-        submitLoginFormWithEmailAndPassword()
-        notificationsOpenHaveTwoTabsClose()
-        userDropdownCheckNameEmailAndLogout()
-        goThroughLanguageSwitcherAndCheckTitlesOnEachPage()
-    })
-
 })

@@ -4,35 +4,36 @@ import {
   newGamesTableTabs
 } from "../const/generalConsts.js"
 
-const openSearchInputArea = () => {
+const openSearch = () => {
   cy.get('.super-search-input').click()
     .should('have.class', 'ant-input-affix-wrapper-focused')
 }  
 
-const typeTextToSearchInputArea = (textToType) => {
-  cy.get('[aria-label="toolbar-search-input"]').type(textToType)
-  cy.get('input').should('have.value', textToType)
+const typeToSearch = (text) => {
+  cy.get('[aria-label="toolbar-search-input"]').type(text)
+  cy.get('input').should('have.value', text)
 }
 
-const clearSearchInputArea = () => {
+const clearSearch = () => {
   cy.get('[aria-label="close-circle"]').click()
   cy.get('input').should('have.value', '')
 }
 
-const closeOpenedSearchInputArea = () => {
+const closeOpenedEmptySearch = () => {
+
   cy.get('[aria-label="toolbar-title"]').click()
   cy.get('.super-search-input')
     .should('not.have.class', 'ant-input-affix-wrapper-focused')
 }
 
-const searchFunctionalityValidation = () => {
-  openSearchInputArea()
-  typeTextToSearchInputArea(textToTypeInSearch)
-  clearSearchInputArea()
-  closeOpenedSearchInputArea()
+const searchAreaFunctionalityValidation = () => {
+  openSearch()
+  typeToSearch(textToTypeInSearch)
+  clearSearch()
+  closeOpenedEmptySearch()
   }
 
-const compareEachGameTitleInTableToContainText = (textToCompare) => {
+const correctFilterCheck = (textToCompare) => {
   cy.get('.gamesTable').should('be.visible')
   cy.wait(2000)
   cy.get('tbody .ant-table-row').each(($row) => {
@@ -46,32 +47,34 @@ const compareEachGameTitleInTableToContainText = (textToCompare) => {
   })
 }
 
-const compareTypedTextToFilteredRows = function (typedText, textToCompare) {
-  openSearchInputArea()
-  typeTextToSearchInputArea(typedText)
-  compareEachGameTitleInTableToContainText(textToCompare)
+const manualSearchFilterValidation = function (textInSearch, textInGameName) {
+  openSearch()
+  typeToSearch(textInSearch)
+  correctFilterCheck(textInGameName)
 }
 
-const getLastThreeSymbolsFromRandomTitleAndCompareToFilteredRows = function () {
+const randomNumFrom0To24 = () => {
+  return (Math.floor(Math.random() * 25))
+}
 
-  openSearchInputArea()
-  const randomNum = Math.floor(Math.random() * 25) 
+const searchFilterValidation = function () {
 
+  openSearch()
   cy.get('tbody .ant-table-row')
-    .eq(randomNum)
+    .eq(randomNumFrom0To24())
     .find('.title-cell')
     .invoke('text')
     .as('randomTitleText')
     .then(() => {
       cy.get('@randomTitleText').then((text) => {
         const threeSymb = text.slice(-3)
-        typeTextToSearchInputArea(threeSymb)
-        compareEachGameTitleInTableToContainText(threeSymb.toLowerCase())
+        typeToSearch(threeSymb)
+        correctFilterCheck(threeSymb.toLowerCase())
       })
     })
 }
 
-const checkTabsTitlesOfAllGamesTable = () => {
+const checkAllGamesTabs = () => {
   Object.keys(allGamesTableTabs).forEach((index) => {
     cy.get('.ant-tabs-nav-list')
       .find('[data-node-key]')
@@ -80,7 +83,7 @@ const checkTabsTitlesOfAllGamesTable = () => {
   }) 
 }
 
-const checkTabsTitlesOfNewGamesTable = () => {
+const checkNewGamesTabs = () => {
   Object.keys(newGamesTableTabs).forEach((index) => {
     cy.get('.gamesTable thead th')
     .eq(index)
@@ -88,7 +91,7 @@ const checkTabsTitlesOfNewGamesTable = () => {
   }) 
 }
 
-const checkGamesTableThatEachTabOpensByClick = () => {
+const checkGamesTableNavigation = () => {
   cy.get('.gamesTable').should('be.visible')
   // click on each tab
   for (let i = 1; i < 7; i++) {
@@ -113,6 +116,12 @@ const checkGamesTableThatEachTabOpensByClick = () => {
   }
 }
 
+const tablesStructureCheck = () => {
+  checkAllGamesTabs()
+  checkNewGamesTabs()
+  checkGamesTableNavigation()
+}
+
 const getSecondNumberFromString = (string) => {
   const words = string.split(' ')
   const secondNumberFromToolbar = parseInt(words[4], 10)
@@ -120,7 +129,7 @@ const getSecondNumberFromString = (string) => {
   return secondNumberFromToolbar
 }
 
-const verifyNumberOfRowsEqualsToNumberInToolbarAndTab = () => {
+const numberMatchingCheck = () => {
   cy.get('[aria-label="toolbar-title"]')
   .invoke('text')
   .then((text) => {
@@ -145,9 +154,34 @@ const verifyNumberOfRowsEqualsToNumberInToolbarAndTab = () => {
   })
 }
 
-const openActionsMenu = () => {
-  cy.get('[aria-label="more"]')
+const manualNumbersMatchingCheck = (textForFilter) => {
+  openSearch()
+  typeToSearch(textForFilter)
+  cy.get('.gamesTable').should('be.visible')
+  cy.wait(3000)
+  numberMatchingCheck()
 }
+
+const autoNumbersMatchingCheck = function () {
+  openSearch()
+  cy.get('tbody .ant-table-row')
+    .eq(randomNumFrom0To24())
+    .find('.title-cell')
+    .invoke('text')
+    .as('randomTitleText')
+    .then(() => {
+      cy.get('@randomTitleText').then((text) => {
+        const threeSymb = text.slice(-3)
+        typeToSearch(threeSymb)
+        cy.wait(3000)
+        numberMatchingCheck()
+      })
+    })
+}
+
+// const openActionsMenu = () => {
+//   cy.get('[aria-label="game-actions-menu"]').first().click()
+// }
 
 const gameDetailsWindow = () => {
   let gameTitle = ''
@@ -159,17 +193,15 @@ const gameDetailsWindow = () => {
             .then((text) => { 
                 gameTitle = text 
             })
-            cy.get('[aria-label="game-actions-menu"]')
-            .click()
+            .get('[aria-label="game-actions-menu"]').click()
         })
         .then(() => {
-            cy.get('[aria-label="edit"]').click() //ask to add aria-lable for Game Detail
-            cy.get('h4[class="ant-typography"]') //ask to add aria-lable
+            cy.get('[aria-label="edit"]').click()
+            .get('[aria-label="edit-game-drawer-game-name"]')
             .invoke('text')
             .then((text) => {
                 expect(gameTitle).to.equal(text)
-                cy.get('.ss-popup-container') //ask to add aria-lable
-                .find('button')
+                cy.get('[aria-label="edit-game-drawer-close-button"]')
                 .should('contain','Close')
                 .click()   
             })
@@ -187,24 +219,22 @@ const manageCreativesWindow = () => {
         .then((text) => {
           actualGameStatus = text
         })
-      cy.get('[aria-label="game-actions-menu"]')
-        .click()
+      .get('[aria-label="game-actions-menu"]').click()
       })
     .then(() => {
       if (actualGameStatus === 'Pending Approval'){
-      cy.get('[aria-label="folder"]')
-        .parent()
+      cy.get('[aria-label="game-actions-manage-creatives"]')
         .invoke('attr', 'class')
         .should('include','ant-dropdown-menu-item-disabled')
       } else {
-      cy.get('[aria-label="folder"]') //ask to add aria-lable for Manage creatives
+      openActionsMenu()
+      cy.get('[aria-label="game-actions-manage-creatives"]')
         .click()
-      cy.get('h3.wizard__drawer-title') //ask to add aria-lable
+      cy.get('[aria-label="manage-creatives-title"]')
         .invoke('text')
         .should('contain','Creatives Library')
-      cy.get('.ant-drawer-footer')
-        .find('button')
-        .contains('Cancel') //ask to add aria-lable
+      cy.get('[aria-label="manage-creatives-cancel-button"]')
+        .contains('Cancel')
         .click()  
       }
     }) 
@@ -215,16 +245,113 @@ const actionsMenuValidation = () => {
   manageCreativesWindow()
 }
 
+const dateSortingValidation = () => {
+  cy.get('[aria-label="caret-down"]').invoke('attr', 'class')
+    .then((classNames) => {
+      if (classNames.includes('active')) {
+        cy.log('from new to old')
+        datesSortedDescending()
+      } else {
+        cy.log('from old to new')
+        datesSortedAscending()
+      }
+    })
+}
+
+const datesSortedDescending = () => {
+  const dates = []
+  cy.get('tbody .ant-table-row')
+    .find('[aria-label="creation-date-cell"]')
+    .each(($dateCell) => {
+      const dateStr = $dateCell.text()
+      cy.log(dateStr)
+      dates.push(new Date(dateStr))
+      })
+      .then(() => {
+        const sortedDates = [...dates].sort((a, b) => b - a)
+        const isSortedDescending = dates.every((date, i) => date === sortedDates[i])
+        expect(isSortedDescending).to.be.true
+      })
+    }
+
+const datesSortedAscending = () => {
+  const dates = []
+  cy.get('tbody .ant-table-row')
+    .find('[aria-label="creation-date-cell"]')
+    .each(($dateCell) => {
+      const dateStr = $dateCell.text()
+      cy.log(dateStr, 'from old to new')
+      dates.push(new Date(dateStr))
+      cy.log(dates)
+      })
+      .then(() => {
+        const sortedDates = [...dates].sort((a, b) => a - b)
+        const isSortedDescending = dates.every((date, i) => date === sortedDates[i])
+        expect(isSortedDescending).to.be.true
+      })
+    }
+
+
+const videoPreview = () => {
+  openSearch()
+  typeToSearch('Managed notLive Monday')
+    
+            const playConceptVideo = () => {
+                cy.get('.preview-wrapper').first().click()
+                .wait(2000)
+                .get('.video-container')
+                .find('.video-react-control-bar button.video-react-play-control')//.click().wait(2000)
+                .invoke('attr', 'class').then((classNames) => { 
+                        if (classNames.includes('video-react-paused')) {
+                            cy.log('video paused')
+                            .get('.video-container')
+                            .find('.video-react-control-bar button.video-react-play-control')
+                            .click()
+                          } else {
+                              if (classNames.includes('video-react-playing')) {
+                                  cy.log('video playing')
+                                }
+                          }
+                    })
+            } 
+  playConceptVideo()    
+  // cy.get('.preview-wrapper').first().click()
+  //   .wait(2000)
+  //   .get('.video-container').find('.video-react-control-bar button.video-react-play-control')
+  //   .invoke('attr', 'class').then((classNames) => { 
+  //     if (classNames.includes('video-react-paused')) {
+  //       cy.log('video paused')
+  //       cy.get('.video-container').find('.video-react-control-bar button.video-react-play-control').click()
+  //     } else {
+  //       if (classNames.includes('video-react-playing')) {
+  //         cy.log('video playing')
+  //       }
+  //     }
+  //   })
+    //.then( () => {
+      cy.get('.video-container')
+        .find('.video-react-control-bar button.video-react-play-control')
+        .click()
+        .invoke('attr', 'class')
+        .should('include','video-react-paused')
+                       
+        .get('[class="super-icon preview-top-bar-arrow-icon"]').first().click()
+    //})
+  }
+    
+
   export { 
-    searchFunctionalityValidation,
-    compareTypedTextToFilteredRows,
-    getLastThreeSymbolsFromRandomTitleAndCompareToFilteredRows,
-    clearSearchInputArea,
-    checkTabsTitlesOfAllGamesTable,
-    checkTabsTitlesOfNewGamesTable,
-    checkGamesTableThatEachTabOpensByClick,
-    openSearchInputArea,
-    typeTextToSearchInputArea,
-    verifyNumberOfRowsEqualsToNumberInToolbarAndTab,
-    actionsMenuValidation
+    searchAreaFunctionalityValidation,
+    manualSearchFilterValidation,
+    searchFilterValidation,
+    clearSearch,
+    tablesStructureCheck,
+    openSearch,
+    typeToSearch,
+    manualNumbersMatchingCheck,
+    autoNumbersMatchingCheck,
+    actionsMenuValidation,
+    dateSortingValidation,
+    videoPreview
+
   }

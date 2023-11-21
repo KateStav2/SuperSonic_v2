@@ -1,21 +1,21 @@
 /// <reference types="cypress" />
 
 import {
-    submitLoginFormWithEmailAndPassword
+    loginToPlatform
 } from "../actions/generalActions.js"
 
 import {
-    searchFunctionalityValidation,
-    compareTypedTextToFilteredRows,
-    getLastThreeSymbolsFromRandomTitleAndCompareToFilteredRows,
-    clearSearchInputArea,
-    checkTabsTitlesOfAllGamesTable,
-    checkTabsTitlesOfNewGamesTable,
-    checkGamesTableThatEachTabOpensByClick,
-    openSearchInputArea,
-    typeTextToSearchInputArea,
-    verifyNumberOfRowsEqualsToNumberInToolbarAndTab,
-    actionsMenuValidation
+    searchAreaFunctionalityValidation,
+    manualSearchFilterValidation,
+    searchFilterValidation,
+    clearSearch,
+    tablesStructureCheck,
+    manualNumbersMatchingCheck,
+    autoNumbersMatchingCheck,
+    actionsMenuValidation,
+    dateSortingValidation,
+    videoPreview
+
 } from "../actions/actionsAllGamesUI.js"
 
 describe(' search and all games UI', {"retries": 1}, () => {
@@ -27,58 +27,77 @@ describe(' search and all games UI', {"retries": 1}, () => {
               expect($loader).to.have.length(0);
             })
         })
-        cy.wait(5000)
-        submitLoginFormWithEmailAndPassword()
-
-    })
-
-    it('search input area: open, type text, erase and close', () => {
-        searchFunctionalityValidation()
-    })
-
-    it('search by characters', () => {   
-        compareTypedTextToFilteredRows('dd','dd')
-        
-        clearSearchInputArea()
-        compareTypedTextToFilteredRows('f8','f8')
-       
-        clearSearchInputArea()
-        compareTypedTextToFilteredRows('tif','ti')
-        
-        //clearSearchInputArea
-        //compareTypedTextToFilteredRows('ti','ti') //test fails
-        
-        clearSearchInputArea()
-        compareTypedTextToFilteredRows('mon','mo')
-    })
-
-    it('search by three symbols from game title', () => {
-        getLastThreeSymbolsFromRandomTitleAndCompareToFilteredRows()
-    
-        clearSearchInputArea()
-        getLastThreeSymbolsFromRandomTitleAndCompareToFilteredRows()
-
-    })
-
-    it('check tabs titles of All Games Table and New Games Table', () => {
-        checkTabsTitlesOfAllGamesTable()
-        checkTabsTitlesOfNewGamesTable()
-    })
-    
-    it('check by attr if tab is chosen after click', () => {
-        checkGamesTableThatEachTabOpensByClick()
-    })
-
-    it('check that number on tab equals to number in toolbar and equals to rows number', () => {   
-        openSearchInputArea()
-        typeTextToSearchInputArea('mm') // 4
-        //typeTextToSearchInputArea('zx') // 2
-        cy.get('.gamesTable').should('be.visible')
         cy.wait(3000)
-        verifyNumberOfRowsEqualsToNumberInToolbarAndTab()
+        loginToPlatform()
+
     })
 
-    it.only('check actions menu', () => {
+    it('searchAreaFunctionalityValidation', () => {
+        searchAreaFunctionalityValidation()
+    })
+
+    it('search by typed characters', () => {   
+        manualSearchFilterValidation('dd','dd')
+        
+        clearSearch()
+        manualSearchFilterValidation('f8','f8')
+       
+        clearSearch()
+        manualSearchFilterValidation('tif','ti')
+        
+        //clearSearch
+        //manualSearchFilterValidation('ti','ti') //test fails
+        
+        clearSearch()
+        manualSearchFilterValidation('mon','mo')
+    })
+
+    it('search validation', () => {
+        searchFilterValidation()
+    
+        clearSearch()
+        searchFilterValidation()
+    })
+
+    it('tables structure and navigation check', () => {
+        tablesStructureCheck()
+    })
+
+
+    it('games number comparison', () => {   
+        manualNumbersMatchingCheck('mon')
+
+        clearSearch()
+        manualNumbersMatchingCheck('go')
+
+        clearSearch()
+        autoNumbersMatchingCheck()
+    })
+
+    it('actions menu validation', () => {
         actionsMenuValidation()
     })
+
+    it.only('date sorting validation', () => {
+        dateSortingValidation()
+        cy.get('span').contains('Creation Date').click()
+        cy.wait(3000)
+        dateSortingValidation()
+    })
+
+
+
+
+
+
+
+    it('rainbow icon', () => {
+        cy.get('tbody .ant-table-row')
+            .first().find('img').click()
+
+    })
+
+    it.only('video preview check', () => {
+        videoPreview()
+          })
 })

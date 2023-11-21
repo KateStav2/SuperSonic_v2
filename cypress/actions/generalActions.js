@@ -13,14 +13,14 @@ import {
 
 import getTitle from "../../cypress/elements/generalElements.js"
 
-const submitLoginFormWithEmailAndPassword = () => {
+const loginToPlatform = () => {
   cy.get('.title-login').should('contain','Welcome Back')
-  cy.get('#login_email').clear().type(loginEmail)
-  cy.get('#login_password').clear().type(loginPassword)
-  cy.get('form').submit()
+    .get('#login_email').clear().type(loginEmail)
+    .get('#login_password').clear().type(loginPassword)
+    .get('form').submit()
 }
 
-const requestForgotPasswordByEmail = () => {
+const passwordRecoveryValidation = () => {
   function submitEmailToRestorePassword () {
     cy.get('form h2').should('contain','Reset Password')
     cy.get('form [class="text"]').should('contain','Enter your email')
@@ -34,6 +34,20 @@ const requestForgotPasswordByEmail = () => {
   cy.get('#email_help').should('contain','Please enter a valid email address')
   submitEmailToRestorePassword(loginEmail)
   cy.get('h2').should('contain','Help is on the Way!')  
+}
+
+const gameOptimizationSublistCheck = () => {
+  cy.get('[aria-label="gameOptimization"] div').click()
+    .invoke('attr','aria-expanded').should('be.equal','true')
+  cy.get('[aria-label="gameOptimization"] div').click()
+    .invoke('attr','aria-expanded').should('be.equal','false')
+}
+
+const publishedGamesSublistCheck = () => {
+  cy.get('[aria-label="publishedGames"] div').click()
+    .invoke('attr','aria-expanded').should('be.equal','true')
+  cy.get('[aria-label="publishedGames"] div').click()
+    .invoke('attr','aria-expanded').should('be.equal','false')
 }
 
 const openMainMenu = () => {
@@ -69,31 +83,24 @@ const openPublishedGamesMenu = () => {
 }
 
 class MainMenuNavigator {
-
   visitAllGamesPage(){
     openMainMenu()
-    cy.get('[aria-label="/prototypes/games"]')
-      .click()      
-    getTitle()
-      .should('contain', 'All Games')
-    cy.url()
-      .should('include', '/prototypes/games')
+    cy.get('[aria-label="/prototypes/games"]').click()      
+    getTitle().should('contain', 'All Games')
+    cy.url().should('include', '/prototypes/games')
   }
-
   visitNewGamePage(){
     openMainMenu()
     cy.get('[aria-label="sidebar-new-game-button"]').click()
     getTitle().should('contain', 'New Game')
     cy.url().should('include', '/prototypes/games/new')
   }
-
   visitPrototypesReportsPage(){
     openMainMenu()
     cy.get('[aria-label="/prototypes/reports"]').click() 
     getTitle().should('contain', 'Reports')
     cy.url().should('include', '/prototypes/reports')
   }
-
   visitABTestsPage(){
     openMainMenu()
     openGameOptimizationMenu()
@@ -101,7 +108,6 @@ class MainMenuNavigator {
     getTitle().should('contain', 'A/B Tests')
     cy.url().should('include', '/ab-tests')
     }
-
   visitLevelAnalyticsPage(){
       openMainMenu()
       openGameOptimizationMenu()
@@ -109,7 +115,6 @@ class MainMenuNavigator {
       getTitle().should('contain', 'Level Analytics')
       cy.url().should('include', '/level-analytics')
   }
-  
   visitCrashCenterPage(){
       openMainMenu()
       openGameOptimizationMenu()
@@ -117,7 +122,6 @@ class MainMenuNavigator {
       getTitle().should('contain', 'Crash Center')
       cy.url().should('include', '/crash-center')
   }
-
   visitAnalyticsPage(){
       openMainMenu()
       openPublishedGamesMenu()
@@ -125,7 +129,6 @@ class MainMenuNavigator {
       getTitle().should('contain', 'Analytics')
       cy.url().should('include', '/cohorts')
   }
-
   visitTopCreativesPage(){
       openMainMenu()
       openPublishedGamesMenu()
@@ -133,44 +136,41 @@ class MainMenuNavigator {
       getTitle().should('contain', 'Top Creatives')
       cy.url().should('include', '/top-creatives')
   }
-
   visitKnowledgeHubPage(){
       openMainMenu()
       cy.get('[aria-label="/prototypes/knowledge-hub"]').click()
       getTitle().should('contain', 'Knowledge Hub')
       cy.url().should('include', '/knowledge-hub')
   }
-
   visitHelpCenterPage(){
       openMainMenu()
       cy.get('[aria-label="/help-center"]').click()
   }
-  
 }
 
-const showAndHideGameOptimizationMenuSublist = () => {
-  cy.get('[aria-label="gameOptimization"] div')
-    .click()
-    .invoke('attr','aria-expanded')
-    .should('be.equal','true')
-  cy.get('[aria-label="gameOptimization"] div')
-    .click()
-    .invoke('attr','aria-expanded')
-    .should('be.equal','false')
+const mainMenuViewValidation = () => {
+  openMainMenu()
+  gameOptimizationSublistCheck()
+  publishedGamesSublistCheck()
+  openGameOptimizationMenu()
+  openPublishedGamesMenu()
 }
 
-const showAndHidePublishedGamesMenuSublist = () => {
-  cy.get('[aria-label="publishedGames"] div')
-    .click()
-    .invoke('attr','aria-expanded')
-    .should('be.equal','true')
-  cy.get('[aria-label="publishedGames"] div')
-    .click()
-    .invoke('attr','aria-expanded')
-    .should('be.equal','false')
+const mainMenuNavigationValidation = () => {
+  const mainMenuNavigateTo = new MainMenuNavigator()
+  mainMenuNavigateTo.visitAllGamesPage()
+  mainMenuNavigateTo.visitNewGamePage()
+  mainMenuNavigateTo.visitPrototypesReportsPage()
+  mainMenuNavigateTo.visitABTestsPage()
+  mainMenuNavigateTo.visitLevelAnalyticsPage()
+  mainMenuNavigateTo.visitCrashCenterPage()
+  mainMenuNavigateTo.visitAnalyticsPage()
+  mainMenuNavigateTo.visitTopCreativesPage()
+  mainMenuNavigateTo.visitKnowledgeHubPage()
+  mainMenuNavigateTo.visitHelpCenterPage()
 }
 
-const notificationsOpenHaveTwoTabsClose = () => {
+const notificationsWindowCheck = () => {
   cy.get('[aria-label="notification-center"]')
     .children()
     .click()
@@ -187,7 +187,7 @@ const notificationsOpenHaveTwoTabsClose = () => {
     .should('not.include','ant-popover-open')
 }
 
-const userDropdownCheckNameEmailAndLogout = () => {
+const userMenuCheck = () => {
   cy.get('[aria-label="user-dropdown"]')
     .click()
     .invoke('attr','class')
@@ -200,13 +200,13 @@ const userDropdownCheckNameEmailAndLogout = () => {
     .click()
   cy.url()
     .should('include', '/login')  
-  submitLoginFormWithEmailAndPassword()
+  loginToPlatform()
   cy.get('[aria-label="user-dropdown"]')
     .invoke('attr','class')
     .should('not.include','ant-dropdown-open')
 }
 
-const goThroughLanguageSwitcherAndCheckTitlesOnEachPage = () => {
+const languageSwitcherCheck = () => {
   cy.get('[aria-label="language-switcher"]').click()
   Object.keys(languages).forEach((language) => {
     const title = languages[language]
@@ -220,15 +220,11 @@ const goThroughLanguageSwitcherAndCheckTitlesOnEachPage = () => {
 }
 
 export { 
-  submitLoginFormWithEmailAndPassword,
-  requestForgotPasswordByEmail,
-  openMainMenu,
-  openGameOptimizationMenu,
-  openPublishedGamesMenu,
-  MainMenuNavigator,
-  showAndHideGameOptimizationMenuSublist,
-  showAndHidePublishedGamesMenuSublist,
-  notificationsOpenHaveTwoTabsClose,
-  userDropdownCheckNameEmailAndLogout,
-  goThroughLanguageSwitcherAndCheckTitlesOnEachPage
+  loginToPlatform,
+  passwordRecoveryValidation,
+  mainMenuViewValidation,
+  mainMenuNavigationValidation,
+  notificationsWindowCheck,
+  userMenuCheck,
+  languageSwitcherCheck
 }
