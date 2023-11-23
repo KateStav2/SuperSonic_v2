@@ -33,6 +33,42 @@ const newGamesTableTabs = {
     '5': 'Creation Date'
 }
 
+const initialTestsTableTabs = {
+    '0': '',
+    '1': '',
+    '2': 'Game Title',
+    '3': 'Studio',
+    '4': 'PM',
+    '5': 'Activity Type',
+    '6': 'Promotion',
+    '7': 'FB Test ver.',
+    '8': 'FB CPI',
+    '9': 'FB CTR',
+    '10': 'FB CVR',
+    '11': 'Google Test Ver.',
+    '12': 'Google CPI',
+    '13': 'TT Test ver.',
+    '14': 'TT CPI',
+    '15': 'TT CTR',
+    '16': 'TT CVR',
+    '17': 'IS Test ver.',
+    '18': 'IS IPM',
+    '19': 'RR (D1)',
+    '20': 'PT (D0)',
+    '21': 'APPU (D7)',
+    '22': 'Game M. Score',
+    '23': 'FB M. Score',
+    '24': 'TT M. Score',
+    '25': 'IS M. Score',
+    '26': 'C. Testing CPI',
+    '27': 'C. Testing WR',
+    '28': 'Current Build',
+    '29': 'Total Spent',
+    '30': 'Concept Video',
+    '31': 'V1 Creation',
+    '32': 'Creation Date'
+}
+
 export { 
     loginEmail, 
     loginPassword, 
@@ -41,7 +77,8 @@ export {
     languages, 
     textToTypeInSearch,
     allGamesTableTabs,
-    newGamesTableTabs
+    newGamesTableTabs,
+    initialTestsTableTabs
 }
 
 // const newGameButton = 'New Game';

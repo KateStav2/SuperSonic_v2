@@ -14,7 +14,9 @@ import {
     autoNumbersMatchingCheck,
     actionsMenuValidation,
     dateSortingValidation,
-    videoPreview
+    videoPreview,
+    gameStatusValidation,
+    initTestsTableStructure
 
 } from "../actions/actionsAllGamesUI.js"
 
@@ -78,18 +80,12 @@ describe(' search and all games UI', {"retries": 1}, () => {
         actionsMenuValidation()
     })
 
-    it.only('date sorting validation', () => {
+    it('date sorting validation', () => {
         dateSortingValidation()
         cy.get('span').contains('Creation Date').click()
         cy.wait(3000)
         dateSortingValidation()
     })
-
-
-
-
-
-
 
     it('rainbow icon', () => {
         cy.get('tbody .ant-table-row')
@@ -97,7 +93,21 @@ describe(' search and all games UI', {"retries": 1}, () => {
 
     })
 
-    it.only('video preview check', () => {
+    it('video preview check', () => {
         videoPreview()
-          })
+    })
+
+    it('game status validation', () => {
+        gameStatusValidation() 
+    })
+
+    it.only('game status validation', () => {
+        //initTestsTableStructure() 
+        cy.wait(5000)
+
+        cy.get('div [data-node-key="initialTests"]')
+        .should('contain','Initial Tests')
+        .click()
+    })
+
 })

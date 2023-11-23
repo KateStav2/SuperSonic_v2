@@ -1,8 +1,11 @@
 import {
   textToTypeInSearch,
   allGamesTableTabs,
-  newGamesTableTabs
+  newGamesTableTabs,
+  initialTestsTableTabs
 } from "../const/generalConsts.js"
+
+import getTitle from "../../cypress/elements/generalElements.js"
 
 const openSearch = () => {
   cy.get('.super-search-input').click()
@@ -291,54 +294,152 @@ const datesSortedAscending = () => {
       })
     }
 
+const playConceptVideo = () => {  //when it exists for the first game
+  //cy.get('.preview-wrapper').first().click()
+  cy.get('[aria-label="all-games-concept-video-cell"]').first().click()
+  .wait(2000)
+  .get('.video-container')
+  .find('.video-react-control-bar button.video-react-play-control')//.click().wait(2000) // to check first if
+  .invoke('attr', 'class').then((classNames) => { 
+          if (classNames.includes('video-react-paused')) {
+              cy.log('video paused')
+              .get('.video-container')
+              .find('.video-react-control-bar button.video-react-play-control')
+              .click()
+            } else {
+                if (classNames.includes('video-react-playing')) {
+                    cy.log('video playing')
+                  }
+            }
+      })
+} 
 
 const videoPreview = () => {
   openSearch()
   typeToSearch('Managed notLive Monday')
+  playConceptVideo()
+
+  cy.get('.video-container')
+    // to pause video:
     
-            const playConceptVideo = () => {
-                cy.get('.preview-wrapper').first().click()
-                .wait(2000)
-                .get('.video-container')
-                .find('.video-react-control-bar button.video-react-play-control')//.click().wait(2000)
-                .invoke('attr', 'class').then((classNames) => { 
-                        if (classNames.includes('video-react-paused')) {
-                            cy.log('video paused')
-                            .get('.video-container')
-                            .find('.video-react-control-bar button.video-react-play-control')
-                            .click()
-                          } else {
-                              if (classNames.includes('video-react-playing')) {
-                                  cy.log('video playing')
-                                }
-                          }
-                    })
-            } 
-  playConceptVideo()    
-  // cy.get('.preview-wrapper').first().click()
-  //   .wait(2000)
-  //   .get('.video-container').find('.video-react-control-bar button.video-react-play-control')
-  //   .invoke('attr', 'class').then((classNames) => { 
-  //     if (classNames.includes('video-react-paused')) {
-  //       cy.log('video paused')
-  //       cy.get('.video-container').find('.video-react-control-bar button.video-react-play-control').click()
-  //     } else {
-  //       if (classNames.includes('video-react-playing')) {
-  //         cy.log('video playing')
-  //       }
-  //     }
-  //   })
-    //.then( () => {
-      cy.get('.video-container')
-        .find('.video-react-control-bar button.video-react-play-control')
-        .click()
-        .invoke('attr', 'class')
-        .should('include','video-react-paused')
-                       
-        .get('[class="super-icon preview-top-bar-arrow-icon"]').first().click()
-    //})
-  }
-    
+    .find('.video-react-control-bar button.video-react-play-control').click()
+    .invoke('attr', 'class').should('include','video-react-paused')
+    // to close window:
+
+    //.get('[class="super-icon preview-top-bar-arrow-icon"]').first().click()
+    .get('[aria-label="video-preview-back-button"]').click()
+}
+
+let gameName = ''
+let gameStatus = ''
+
+const gameStatusValidation = () => {
+  cy.get('tbody .ant-table-row').first().within(() => {
+    cy.get('[aria-label="game-name-cell"]').invoke('text')
+      .then((text) => {
+        gameName = text
+        cy.log(gameName)
+      })
+     cy.get('[aria-label="game-status-cell"]').invoke('text')
+      .then((text) => {
+        gameStatus = text
+        cy.log(gameStatus)
+      })
+    cy.get('[aria-label="game-status-cell"]').click()
+  })
+  cy.log(`Game Name: ${gameName}, Status: ${gameStatus}`) // why don't see from here?
+  cy.url().should('include', '/prototypes/wizard')
+  cy.get('[aria-label="wizard-header-game-title"]').invoke('text')
+    .then((text) => {
+      cy.log(text)
+      expect(text).to.be.equal(gameName)
+    })
+  cy.get('[aria-label="wizard-header-back-arrow"]').click()
+  getTitle().should('contain', 'All Games')
+}
+// const gameStatusValidation = () => {
+//   cy.get('tbody .ant-table-row')
+//   .each(($row) => {
+//     let gameName = $row.find('[aria-label="game-name-cell"]').text()
+//     let gameStatus = $row.find('[aria-label="game-status-cell"]').text()
+//     cy.log(`Game Name: ${gameName}, Status: ${gameStatus}`)
+//     $row.find('[aria-label="game-status-cell"]').click()
+//       cy.url().should('include', '/prototypes/wizard')
+//       cy.get('[aria-label="wizard-header-game-title"]').invoke('text')
+//         .then((text) => {
+//           expect(text).to.be.equal(gameName)
+//         })
+//     })
+// }
+
+let currentColumnsNumber = ''
+
+const chooseAllColumnsFromAnyStateInsideMenu = () => {
+  //determine current number
+  cy.get('.super-picker-body-list-item-header').invoke('text')
+  .then((text) => {
+    let numberMatch = text.match(/\((\d+)\)/)
+    currentColumnsNumber = parseInt(numberMatch[1], 10)
+    cy.log(`currentColumnsNnmber: ${currentColumnsNumber}`)
+
+    if (currentColumnsNumber === 0) {
+      // choose all
+      cy.get('.super-picker-body-list-item-header-check-btn').click()
+      // apply
+      cy.get('.super-picker-footer').find('button').eq(1).click()
+    } else {
+      if (currentColumnsNumber < 30) {
+        // choose nothing
+        cy.get('.super-picker-body-list-item-header-check-btn').click()
+        .wait(2000)
+        // choose all
+        cy.get('.super-picker-body-list-item-header-check-btn').click()
+        .wait(2000)
+        // apply
+        cy.get('.super-picker-footer').find('button').eq(1).click()
+      } else {
+        // just cancel
+        cy.get('.super-picker-footer').find('button').eq(1).click()
+      }
+    }
+
+  })
+}
+
+const checkInitialTestsAllTabs = () => {
+  Object.keys(initialTestsTableTabs).forEach((index) => {
+    cy.get('.gamesTable thead th')
+    .eq(index)
+    .should('contain',initialTestsTableTabs[index])
+  }) 
+}
+
+const initTestsTableStructure = () => {
+
+  // cy.get('div [data-node-key="initialTests"]')
+  //   .should('contain','Initial Tests')
+  //   .click()
+  // cy.contains('Initial Tests').click()
+
+    cy.get('.gamesTable').should('be.visible')
+    // open init tests tab
+    cy.get('.ant-tabs-nav-list')
+      .find('div[data-node-key]')
+      .eq(1)
+      .click()
+    // open columns menu
+    cy.get('.gameColumnsFilter')
+    .should('be.visible')
+    .click()
+    cy.get('.super-picker-header-title').should('contain','Columns')
+    chooseAllColumnsFromAnyStateInsideMenu()
+    checkInitialTestsAllTabs()
+
+    const lenght = () => {
+      cy.get('.super-picker-body-list-item-options')
+    }
+
+}
 
   export { 
     searchAreaFunctionalityValidation,
@@ -352,6 +453,8 @@ const videoPreview = () => {
     autoNumbersMatchingCheck,
     actionsMenuValidation,
     dateSortingValidation,
-    videoPreview
+    videoPreview,
+    gameStatusValidation,
+    initTestsTableStructure
 
   }
